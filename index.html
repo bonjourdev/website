@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bonjour.</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
@@ -22,12 +22,15 @@
                     animation: {
                         'pulse-slow': 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                         'float': 'float 3s ease-in-out infinite',
-                        'spin-slow': 'spin 12s linear infinite',
+                        'border-beam': 'border-beam 3s linear infinite',
                     },
                     keyframes: {
                         float: {
                             '0%, 100%': { transform: 'translateY(0)' },
                             '50%': { transform: 'translateY(-15px)' },
+                        },
+                        'border-beam': {
+                            '100%': { 'offset-distance': '100%' },
                         }
                     }
                 }
@@ -39,6 +42,7 @@
         ::-webkit-scrollbar-track { background: #0B0F1A; }
         ::-webkit-scrollbar-thumb { background: #A855F7; border-radius: 4px; }
         
+        body { background-color: #0B0F1A; transition: background 0.3s ease; }
         .glass-nav { background: rgba(11, 15, 26, 0.8); backdrop-filter: blur(12px); }
         
         .text-gradient {
@@ -56,36 +60,44 @@
             transform: scale(1.05) translateY(-3px);
         }
 
-        .card-violet-glow {
-            transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, border-color 0.2s ease;
+        .asset-card {
+            position: relative;
+            transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
             transform-style: preserve-3d;
-            perspective: 1000px;
+            overflow: hidden;
         }
-        .card-violet-glow:hover {
-            box-shadow: 0 20px 40px -15px rgba(168, 85, 247, 0.4);
-            border-color: rgba(168, 85, 247, 0.6);
+        
+        .card-light {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(800px circle at var(--x) var(--y), rgba(168, 85, 247, 0.15), transparent 40%);
+            opacity: 0;
+            transition: opacity 0.5s;
+            pointer-events: none;
         }
+        .asset-card:hover .card-light { opacity: 1; }
 
         .bg-blob {
             filter: blur(80px);
-            opacity: 0.2;
+            opacity: 0.15;
             z-index: -1;
-            transition: transform 0.1s ease-out;
+            transition: transform 0.2s cubic-bezier(0.075, 0.82, 0.165, 1);
         }
 
         #cursor-glow {
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(168, 85, 247, 0.08) 0%, rgba(11, 15, 26, 0) 70%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.05) 0%, rgba(11, 15, 26, 0) 70%);
             position: fixed;
             pointer-events: none;
             z-index: 0;
             transform: translate(-50%, -50%);
             border-radius: 50%;
+            transition: scale 0.3s ease;
         }
     </style>
 </head>
-<body class="bg-dark text-slate-300 font-sans selection:bg-accent selection:text-white overflow-x-hidden">
+<body class="text-slate-300 font-sans selection:bg-accent selection:text-white overflow-x-hidden">
 
     <div id="cursor-glow"></div>
 
@@ -93,7 +105,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center">
-                    <span class="text-2xl font-bold text-white tracking-tighter">
+                    <span class="text-2xl font-black text-white tracking-tighter hover:scale-105 transition-transform cursor-pointer">
                         Bonjour<span class="text-accent">.</span>
                     </span>
                 </div>
@@ -101,7 +113,7 @@
                     <a href="#home" class="hover:text-accent transition text-sm font-medium">Home</a>
                     <a href="#assets" class="hover:text-accent transition text-sm font-medium">Assets</a>
                     <a href="#about" class="hover:text-accent transition text-sm font-medium">About</a>
-                    <a href="https://dsc.gg/bjr" target="_blank" class="bg-[#5865F2] hover:shadow-[0_0_15px_rgba(88,101,242,0.4)] text-white px-5 py-2 rounded-full text-sm font-bold transition-all hover:-translate-y-1">
+                    <a href="https://dsc.gg/bjr" target="_blank" class="bg-[#5865F2] hover:shadow-[0_0_20px_rgba(88,101,242,0.5)] text-white px-5 py-2 rounded-full text-sm font-bold transition-all hover:-translate-y-1 active:scale-95">
                         <i class="fa-brands fa-discord mr-2"></i>Discord
                     </a>
                 </div>
@@ -116,21 +128,21 @@
         </div>
 
         <div class="max-w-7xl mx-auto px-4 text-center z-10" data-aos="zoom-out-up">
-            <div class="inline-flex items-center px-4 py-1.5 rounded-full border border-accent/30 bg-accent/5 mb-8 animate-float">
-                <span class="text-xs font-bold text-accent uppercase tracking-widest flex items-center gap-2">
-                    <span class="w-2 h-2 bg-accent rounded-full animate-ping"></span>
+            <div class="inline-flex items-center px-4 py-1.5 rounded-full border border-accent/30 bg-accent/5 mb-8 animate-float shadow-[0_0_15px_rgba(168,85,247,0.1)]">
+                <span class="text-[10px] font-black text-accent uppercase tracking-[0.2em] flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 bg-accent rounded-full animate-ping"></span>
                     Roblox Open Source Project
                 </span>
             </div>
-            <h1 class="text-6xl md:text-8xl font-black text-white mb-6 tracking-tight">
+            <h1 class="text-7xl md:text-9xl font-black text-white mb-6 tracking-tighter leading-none">
                 Bonjour<br>
                 <span class="text-gradient">Resources.</span>
             </h1>
-            <p class="mt-4 max-w-2xl mx-auto text-lg text-slate-400 mb-12 leading-relaxed">
+            <p class="mt-4 max-w-2xl mx-auto text-lg text-slate-400 mb-12 leading-relaxed opacity-80">
                 Empowering the Roblox community with <span class="text-white font-semibold">enriched scripts</span> for free. High performance, clean code, and zero cost.
             </p>
             <div class="flex flex-col sm:flex-row gap-5 justify-center">
-                <a href="#assets" class="btn-gradient text-white font-bold py-4 px-10 rounded-xl shadow-xl">
+                <a href="#assets" class="btn-gradient text-white font-black py-4 px-10 rounded-xl shadow-xl uppercase text-xs tracking-widest">
                     Explore Assets
                 </a>
                 <a href="https://dsc.gg/bjr" target="_blank" class="border border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold py-4 px-10 rounded-xl transition backdrop-blur-sm">
@@ -140,36 +152,40 @@
         </div>
     </section>
 
-    <section id="assets" class="py-24 relative bg-slate-900/20">
+    <section id="assets" class="py-24 relative bg-slate-900/10">
         <div class="max-w-7xl mx-auto px-4">
             <div class="text-center mb-16" data-aos="fade-down">
-                <h2 class="text-4xl font-bold text-white mb-4">Available Assets</h2>
-                <div class="h-1 w-20 bg-accent mx-auto rounded-full"></div>
+                <h2 class="text-4xl font-black text-white mb-4 uppercase tracking-tighter">Available Assets</h2>
+                <div class="h-1.5 w-12 bg-gradient-to-r from-roblox to-accent mx-auto rounded-full"></div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <script>
                     const assets = [
-                        { name: "BJDR", desc: "Advanced global announcement.", icon: "fa-bullhorn" },
-                        { name: "BluredMenu", desc: "Roblox menu with blur effects.", icon: "fa-window-restore" },
-                        { name: "ChatToDiscord", desc: "Relay game chat to your Discord server.", icon: "fa-comments" },
-                        { name: "Loading Screen", desc: "Smooth introduction for players.", icon: "fa-spinner" },
-                        { name: "Realistic Head-Camera", desc: "Immersive avatar experience.", icon: "fa-video" },
-                        { name: "Topbar Donation", desc: "Easy donation buttons for your game.", icon: "fa-circle-dollar-to-slot" },
-                        { name: "VisualFPS", desc: "Clean HUD to display performance stats.", icon: "fa-gauge-high" },
-                        { name: "Whitelist System", desc: "Secure access control for your game.", icon: "fa-shield-halved" }
+                        { name: "BJDR", version: "2.0.0", desc: "Advanced global announcement.", icon: "fa-bullhorn" },
+                        { name: "BluredMenu", version: "1.0.0", desc: "Roblox menu with blur effects.", icon: "fa-window-restore" },
+                        { name: "ChatToDiscord", version: "1.0.0", desc: "Relay game chat to your Discord server.", icon: "fa-comments" },
+                        { name: "Loading Screen", version: "1.0.0", desc: "Smooth introduction for players.", icon: "fa-spinner" },
+                        { name: "Realistic Head-Camera", version: "1.0.0", desc: "Immersive avatar experience.", icon: "fa-video" },
+                        { name: "Topbar Donation", version: "1.0.0", desc: "Easy donation buttons for your game.", icon: "fa-circle-dollar-to-slot" },
+                        { name: "VisualFPS", version: "1.0.0", desc: "Clean HUD to display performance stats.", icon: "fa-gauge-high" },
+                        { name: "Whitelist System", version: "1.0.0", desc: "Secure access control for your game.", icon: "fa-shield-halved" }
                     ];
 
                     document.write(assets.map(asset => `
                         <div class="asset-card bg-card border border-white/5 rounded-2xl p-6 card-violet-glow group" data-aos="fade-up">
-                            <div class="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center text-accent mb-4 group-hover:bg-accent group-hover:text-white transition-all duration-500">
-                                <i class="fa-solid ${asset.icon} text-lg"></i>
+                            <div class="card-light"></div>
+                            <div class="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center text-accent mb-4 group-hover:scale-110 group-hover:bg-accent group-hover:text-white transition-all duration-500 shadow-lg">
+                                <i class="fa-solid ${asset.icon} text-xl"></i>
                             </div>
-                            <h3 class="text-lg font-bold text-white mb-2 group-hover:text-accent transition-colors">${asset.name}</h3>
-                            <p class="text-slate-500 text-xs mb-6 leading-relaxed">${asset.desc}</p>
+                            <div class="mb-4">
+                                <h3 class="text-lg font-black text-white group-hover:text-accent transition-colors tracking-tight">${asset.name}</h3>
+                                <span class="text-[10px] font-mono font-bold text-accent/60 bg-accent/5 px-2 py-0.5 rounded border border-accent/10">v${asset.version}</span>
+                            </div>
+                            <p class="text-slate-500 text-xs mb-6 leading-relaxed h-8">${asset.desc}</p>
                             <a href="https://github.com/bonjourdev/website/raw/refs/heads/main/assets/${encodeURIComponent(asset.name)}.rbxm" 
-                               class="w-full py-2.5 bg-white/5 hover:bg-accent hover:text-white text-slate-300 text-xs font-bold rounded-lg transition-all text-center block overflow-hidden relative">
-                               <span class="relative z-10"><i class="fa-solid fa-download mr-2"></i> Download</span>
+                               class="w-full py-3 bg-white/5 hover:bg-accent hover:text-white text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all text-center block relative z-10 border border-white/5 hover:border-transparent">
+                               <i class="fa-solid fa-download mr-2"></i> Get Asset
                             </a>
                         </div>
                     `).join(''));
@@ -178,25 +194,25 @@
         </div>
     </section>
 
-    <section id="about" class="py-24 border-t border-white/5 overflow-hidden">
+    <section id="about" class="py-24 border-t border-white/5 relative overflow-hidden">
         <div class="max-w-7xl mx-auto px-4">
             <div class="grid lg:grid-cols-2 gap-16 items-center">
                 <div class="order-2 lg:order-1" data-aos="fade-right">
                     <div class="relative group">
-                        <div class="absolute -inset-1 bg-gradient-to-r from-roblox to-accent rounded-xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+                        <div class="absolute -inset-1 bg-gradient-to-r from-roblox to-accent rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
                         <div class="relative bg-[#0F121D] rounded-xl border border-white/10 shadow-2xl overflow-hidden font-mono text-xs md:text-sm">
                             <div class="flex items-center px-4 py-3 bg-white/5 border-b border-white/5">
                                 <div class="flex space-x-2">
-                                    <div class="w-3 h-3 rounded-full bg-red-500/50"></div>
-                                    <div class="w-3 h-3 rounded-full bg-yellow-500/50"></div>
-                                    <div class="w-3 h-3 rounded-full bg-green-500/50"></div>
+                                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
                                 </div>
-                                <span class="ml-4 text-slate-500 text-xs tracking-widest uppercase">about_me.lua</span>
+                                <span class="ml-4 text-slate-500 text-[10px] tracking-widest uppercase font-bold">about_me.lua</span>
                             </div>
-                            <div class="p-8">
+                            <div class="p-8 space-y-1">
                                 <p><span class="text-accent">local</span> Developer = <span class="text-emerald-400">"Bonjour"</span></p>
                                 <p><span class="text-accent">local</span> Community = <span class="text-emerald-400">"Roblox Studio"</span></p>
-                                <p class="mt-4 text-slate-600">-- Main Loop</p>
+                                <p class="pt-4 text-slate-600">-- Continuous Innovation</p>
                                 <p><span class="text-accent">while</span> task.wait() <span class="text-accent">do</span></p>
                                 <p class="ml-4">HelpDevs(<span class="text-roblox">"Free Scripts"</span>)</p>
                                 <p class="ml-4">OptimizeCode(<span class="text-roblox">true</span>)</p>
@@ -207,22 +223,22 @@
                 </div>
                 
                 <div class="order-1 lg:order-2" data-aos="fade-left">
-                    <h2 class="text-4xl font-black text-white mb-6 leading-tight">Everything is <br><span class="text-gradient">Open Source.</span></h2>
-                    <p class="text-slate-400 mb-8 text-lg">
+                    <h2 class="text-5xl font-black text-white mb-6 leading-[0.9] tracking-tighter uppercase">Everything is <br><span class="text-gradient">Open Source.</span></h2>
+                    <p class="text-slate-400 mb-8 text-lg leading-relaxed">
                         Bonjour. is not just a repository, it's a commitment to quality. No robux needed, no gatekeeping. Just tools to help you build the next front-page game.
                     </p>
-                    <div class="space-y-4">
-                        <div class="flex items-center gap-4 text-white font-semibold group cursor-default">
-                            <div class="w-6 h-6 rounded bg-accent/20 flex items-center justify-center text-accent group-hover:bg-accent group-hover:text-white transition-all"><i class="fa-solid fa-check text-[10px]"></i></div>
-                            Direct Downloads
+                    <div class="grid grid-cols-1 gap-4">
+                        <div class="flex items-center gap-4 text-white font-bold group cursor-default p-3 rounded-xl hover:bg-white/5 transition-colors">
+                            <div class="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center text-accent group-hover:rotate-12 transition-transform"><i class="fa-solid fa-bolt text-sm"></i></div>
+                            Instant Download
                         </div>
-                        <div class="flex items-center gap-4 text-white font-semibold group cursor-default">
-                            <div class="w-6 h-6 rounded bg-accent/20 flex items-center justify-center text-accent group-hover:bg-accent group-hover:text-white transition-all"><i class="fa-solid fa-check text-[10px]"></i></div>
-                            No Viruses / Clean Code
+                        <div class="flex items-center gap-4 text-white font-bold group cursor-default p-3 rounded-xl hover:bg-white/5 transition-colors">
+                            <div class="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center text-accent group-hover:rotate-12 transition-transform"><i class="fa-solid fa-shield-virus text-sm"></i></div>
+                            Safe & Verified
                         </div>
-                        <div class="flex items-center gap-4 text-white font-semibold group cursor-default">
-                            <div class="w-6 h-6 rounded bg-accent/20 flex items-center justify-center text-accent group-hover:bg-accent group-hover:text-white transition-all"><i class="fa-solid fa-check text-[10px]"></i></div>
-                            Optimized for High Latency
+                        <div class="flex items-center gap-4 text-white font-bold group cursor-default p-3 rounded-xl hover:bg-white/5 transition-colors">
+                            <div class="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center text-accent group-hover:rotate-12 transition-transform"><i class="fa-solid fa-code text-sm"></i></div>
+                            Highly Optimized
                         </div>
                     </div>
                 </div>
@@ -232,21 +248,20 @@
 
     <footer class="py-12 border-t border-white/5 bg-[#080B14]">
         <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6">
-            <div>
-                <span class="text-xl font-bold text-white tracking-tighter">Bonjour<span class="text-accent">.</span></span>
-                <p class="text-slate-600 text-[10px] mt-1 font-mono uppercase tracking-widest">©2025 Bonjour. All rights reserved/</p>
+            <div class="text-center md:text-left">
+                <span class="text-2xl font-black text-white tracking-tighter uppercase">Bonjour<span class="text-accent">.</span></span>
+                <p class="text-slate-600 text-[9px] mt-1 font-mono uppercase tracking-[0.3em] font-bold">©2025 Bonjour. All rights reserved/</p>
             </div>
-            <div class="flex items-center space-x-6">
-                <a href="https://github.com/bonjourdev" class="text-slate-400 hover:text-white transition text-xl hover:scale-110"><i class="fa-brands fa-github"></i></a>
-                <a href="https://dsc.gg/bjr" class="text-slate-400 hover:text-accent transition text-xl hover:scale-110"><i class="fa-brands fa-discord"></i></a>
+            <div class="flex items-center space-x-8">
+                <a href="https://github.com/bonjourdev" class="text-slate-400 hover:text-white transition text-2xl hover:-translate-y-1"><i class="fa-brands fa-github"></i></a>
+                <a href="https://dsc.gg/bjr" class="text-slate-400 hover:text-accent transition text-2xl hover:-translate-y-1"><i class="fa-brands fa-discord"></i></a>
             </div>
         </div>
     </footer>
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        
-        AOS.init({ duration: 800, easing: 'ease-out-back', once: true });
+        AOS.init({ duration: 1000, easing: 'ease-out-expo', once: true });
 
         const cursorGlow = document.getElementById('cursor-glow');
         const blobs = [document.getElementById('blob-1'), document.getElementById('blob-2')];
@@ -258,10 +273,11 @@
             cursorGlow.style.left = `${clientX}px`;
             cursorGlow.style.top = `${clientY}px`;
 
+            // Parallax Blobs
             blobs.forEach((blob, index) => {
-                const speed = (index + 1) * 20;
-                const x = (window.innerWidth - clientX * speed) / 100;
-                const y = (window.innerHeight - clientY * speed) / 100;
+                const speed = (index + 1) * 30;
+                const x = (window.innerWidth / 2 - clientX) / speed;
+                const y = (window.innerHeight / 2 - clientY) / speed;
                 blob.style.transform = `translate(${x}px, ${y}px)`;
             });
 
@@ -270,12 +286,16 @@
                 const x = clientX - rect.left;
                 const y = clientY - rect.top;
                 
-                if (x > 0 && x < rect.width && y > 0 && y < rect.height) {
+                card.style.setProperty('--x', `${x}px`);
+                card.style.setProperty('--y', `${y}px`);
+
+                if (x > -50 && x < rect.width + 50 && y > -50 && y < rect.height + 50) {
                     const xc = rect.width / 2;
                     const yc = rect.height / 2;
                     const dx = x - xc;
                     const dy = y - yc;
-                    card.style.transform = `perspective(1000px) rotateX(${-dy / 10}deg) rotateY(${dx / 10}deg) translateY(-5px)`;
+                    
+                    card.style.transform = `perspective(1000px) rotateX(${-dy / 15}deg) rotateY(${dx / 15}deg) scale3d(1.02, 1.02, 1.02)`;
                 } else {
                     card.style.transform = '';
                 }
