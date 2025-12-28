@@ -26,17 +26,6 @@
                         'pulse-slow': 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                         'float': 'float 3s ease-in-out infinite',
                         'twinkle': 'twinkle 3s ease-in-out infinite',
-                        'spin-slow': 'spin 10s linear infinite',
-                    },
-                    keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-20px)' },
-                        },
-                        twinkle: {
-                            '0%, 100%': { opacity: 0.1, transform: 'scale(1)' },
-                            '50%': { opacity: 0.6, transform: 'scale(1.5)' },
-                        }
                     }
                 }
             }
@@ -55,18 +44,15 @@
             .glass-nav { background: rgba(11, 15, 26, 0.8); }
         }
 
-        /* Animation de texte par lettres */
-        .letter {
-            display: inline-block;
-            opacity: 0;
-            transform: translateY(30px) rotateX(-90deg);
-            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        @keyframes revealText {
+            0% { clip-path: inset(0 100% 0 0); filter: blur(10px); letter-spacing: 1em; }
+            100% { clip-path: inset(0 0 0 0); filter: blur(0); letter-spacing: -0.05em; }
         }
-        .letter.active {
-            opacity: 1;
-            transform: translateY(0) rotateX(0deg);
+
+        .reveal-anim {
+            animation: revealText 2.5s cubic-bezier(0.77, 0, 0.175, 1) forwards;
         }
-        
+
         .text-gradient {
             background: linear-gradient(135deg, #00A2FF 0%, #A855F7 100%);
             -webkit-background-clip: text;
@@ -85,50 +71,38 @@
             background: linear-gradient(135deg, #00A2FF 0%, #A855F7 100%);
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .btn-gradient:hover {
-            box-shadow: 0 0 30px rgba(168, 85, 247, 0.5);
-            transform: scale(1.05) translateY(-3px);
-        }
 
         .card-violet-glow {
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
+            transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, border-color 0.2s ease;
+            transform-style: preserve-3d;
         }
 
-        .bg-blob {
-            filter: blur(80px);
-            opacity: 0.15;
-            z-index: -1;
-        }
+        .bg-blob { filter: blur(80px); opacity: 0.15; z-index: -1; }
 
         #cursor-glow {
-            width: 800px;
-            height: 800px;
-            background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, rgba(0,0,0,0) 70%);
-            position: fixed;
-            pointer-events: none;
-            z-index: 0;
-            transform: translate(-50%, -50%);
-            border-radius: 50%;
+            width: 800px; height: 800px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.08) 0%, rgba(0,0,0,0) 70%);
+            position: fixed; pointer-events: none; z-index: 0;
+            transform: translate(-50%, -50%); border-radius: 50%;
         }
 
-        .lang-dropdown {
-            display: none;
-            animation: fadeIn 0.2s ease-out;
-        }
-        .lang-container:hover .lang-dropdown { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-
+        .particle { position: fixed; background: currentColor; border-radius: 2px; pointer-events: none; z-index: -1; }
         body.loading { overflow: hidden; }
+        
+        /* Language Dropdown */
+        .lang-dropdown {
+            opacity: 0; visibility: hidden; transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+        .group:hover .lang-dropdown { opacity: 1; visibility: visible; transform: translateY(0); }
     </style>
 </head>
 <body class="loading bg-light dark:bg-dark text-slate-600 dark:text-slate-300 font-sans selection:bg-accent selection:text-white overflow-x-hidden transition-colors duration-500">
 
-    <div id="loader" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white dark:bg-[#000000] transition-opacity duration-1000">
-        <div id="loader-content" class="text-6xl md:text-8xl font-black text-slate-900 dark:text-white mb-4">
-            </div>
-        <div class="w-48 h-[2px] bg-slate-200 dark:bg-white/10 relative overflow-hidden rounded-full">
-            <div id="loader-bar" class="absolute inset-0 bg-accent w-0 transition-all duration-[3000ms] ease-out"></div>
-        </div>
+    <div id="loader" class="fixed inset-0 z-[100] flex items-center justify-center bg-white dark:bg-[#000000] transition-opacity duration-1000">
+        <h1 id="loader-text" class="text-6xl md:text-8xl font-black opacity-0 text-slate-900 dark:text-white">
+            Bonjour<span class="text-accent">.</span>
+        </h1>
     </div>
 
     <div id="cursor-glow"></div>
@@ -137,35 +111,29 @@
     <nav class="fixed w-full z-50 glass-nav border-b border-black/5 dark:border-white/5">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
-                <div class="flex items-center gap-8">
+                <div class="flex items-center">
                     <span class="text-2xl font-bold text-slate-900 dark:text-white tracking-tighter">
                         Bonjour<span class="text-accent">.</span>
                     </span>
-                    
-                    <div class="hidden lg:block relative lang-container">
-                        <button class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-accent transition">
-                            <img src="https://flagcdn.com/us.svg" class="w-4 h-3 rounded-sm" alt="en"> EN <i class="fa-solid fa-chevron-down text-[8px]"></i>
-                        </button>
-                        <div class="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-cardDark border border-black/5 dark:border-white/10 rounded-xl shadow-2xl p-2 lang-dropdown backdrop-blur-xl">
-                            <div class="grid grid-cols-1 gap-1">
-                                <a href="#" class="flex items-center gap-3 p-2 hover:bg-accent/10 rounded-lg transition text-xs font-medium"><img src="https://flagcdn.com/us.svg" class="w-4"> English</a>
-                                <a href="#" class="flex items-center gap-3 p-2 hover:bg-accent/10 rounded-lg transition text-xs font-medium"><img src="https://flagcdn.com/fr.svg" class="w-4"> Français</a>
-                                <a href="#" class="flex items-center gap-3 p-2 hover:bg-accent/10 rounded-lg transition text-xs font-medium"><img src="https://flagcdn.com/it.svg" class="w-4"> Italiano</a>
-                                <a href="#" class="flex items-center gap-3 p-2 hover:bg-accent/10 rounded-lg transition text-xs font-medium"><img src="https://flagcdn.com/de.svg" class="w-4"> Deutsch</a>
-                                <a href="#" class="flex items-center gap-3 p-2 hover:bg-accent/10 rounded-lg transition text-xs font-medium"><img src="https://flagcdn.com/es.svg" class="w-4"> Español</a>
-                                <a href="#" class="flex items-center gap-3 p-2 hover:bg-accent/10 rounded-lg transition text-xs font-medium"><img src="https://flagcdn.com/ru.svg" class="w-4"> Pусский</a>
-                                <a href="#" class="flex items-center gap-3 p-2 hover:bg-accent/10 rounded-lg transition text-xs font-medium"><img src="https://flagcdn.com/cn.svg" class="w-4"> 中文</a>
-                                <a href="#" class="flex items-center gap-3 p-2 hover:bg-accent/10 rounded-lg transition text-xs font-medium"><img src="https://flagcdn.com/kr.svg" class="w-4"> 한국어</a>
-                                <a href="#" class="flex items-center gap-3 p-2 hover:bg-accent/10 rounded-lg transition text-xs font-medium"><img src="https://flagcdn.com/jp.svg" class="w-4"> 日本語</a>
-                            </div>
-                        </div>
-                    </div>
                 </div>
                 
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="#home" class="hover:text-accent transition text-sm font-medium">Home</a>
-                    <a href="#assets" class="hover:text-accent transition text-sm font-medium">Assets</a>
-                    <a href="#about" class="hover:text-accent transition text-sm font-medium">About</a>
+                    <div class="relative group">
+                        <button class="flex items-center gap-2 hover:text-accent transition text-sm font-medium">
+                            <span id="current-flag">🇺🇸</span> <span id="current-lang">English</span>
+                            <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                        </button>
+                        <div class="lang-dropdown absolute top-full right-0 mt-2 w-40 bg-white dark:bg-cardDark border border-black/5 dark:border-white/10 rounded-xl shadow-xl overflow-hidden py-2">
+                            <button onclick="setLanguage('en')" class="w-full px-4 py-2 text-left hover:bg-accent/10 flex items-center gap-3 text-sm"><span>🇺🇸</span> English</button>
+                            <button onclick="setLanguage('fr')" class="w-full px-4 py-2 text-left hover:bg-accent/10 flex items-center gap-3 text-sm"><span>🇫🇷</span> Français</button>
+                            <button onclick="setLanguage('es')" class="w-full px-4 py-2 text-left hover:bg-accent/10 flex items-center gap-3 text-sm"><span>🇪🇸</span> Español</button>
+                            <button onclick="setLanguage('ru')" class="w-full px-4 py-2 text-left hover:bg-accent/10 flex items-center gap-3 text-sm"><span>🇷🇺</span> Русский</button>
+                        </div>
+                    </div>
+
+                    <a href="#home" data-i18n="nav-home" class="hover:text-accent transition text-sm font-medium">Home</a>
+                    <a href="#assets" data-i18n="nav-assets" class="hover:text-accent transition text-sm font-medium">Assets</a>
+                    <a href="#about" data-i18n="nav-about" class="hover:text-accent transition text-sm font-medium">About</a>
                     <a href="https://dsc.gg/bjr" target="_blank" class="bg-[#5865F2] hover:shadow-[0_0_20px_rgba(88,101,242,0.5)] text-white px-5 py-2 rounded-full text-sm font-bold transition-all hover:-translate-y-1">
                         <i class="fa-brands fa-discord mr-2"></i>Discord
                     </a>
@@ -181,26 +149,22 @@
         </div>
 
         <div class="max-w-7xl mx-auto px-4 text-center z-10" data-aos="zoom-out-up">
-            <div class="inline-flex items-center px-4 py-1.5 rounded-full border border-accent/30 bg-accent/5 mb-8 animate-float">
+            <div class="inline-flex items-center px-4 py-1.5 rounded-full border border-accent/30 bg-accent/5 mb-8">
                 <span class="text-xs font-bold text-accent uppercase tracking-widest flex items-center gap-2">
                     <span class="w-2 h-2 bg-accent rounded-full animate-ping"></span>
-                    Roblox Open Source Project
+                    <span data-i18n="badge">Roblox Open Source Project</span>
                 </span>
             </div>
             <h1 class="text-6xl md:text-8xl font-black text-slate-900 dark:text-white mb-6 tracking-tight">
                 Bonjour<br>
-                <span class="text-gradient">Resources.</span>
+                <span class="text-gradient" data-i18n="hero-title">Resources.</span>
             </h1>
-            <p class="mt-4 max-w-2xl mx-auto text-lg text-slate-500 dark:text-slate-400 mb-12 leading-relaxed">
+            <p class="mt-4 max-w-2xl mx-auto text-lg text-slate-500 dark:text-slate-400 mb-12 leading-relaxed" data-i18n="hero-desc">
                 Empowering the Roblox community with <span class="text-slate-900 dark:text-white font-semibold">enriched scripts</span> for free. High performance, clean code, and zero cost.
             </p>
             <div class="flex flex-col sm:flex-row gap-5 justify-center">
-                <a href="#assets" class="btn-gradient text-white font-bold py-4 px-10 rounded-xl shadow-xl">
-                    Explore Assets
-                </a>
-                <a href="https://dsc.gg/bjr" target="_blank" class="border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-slate-900 dark:text-white font-bold py-4 px-10 rounded-xl transition backdrop-blur-sm">
-                    Join Community
-                </a>
+                <a href="#assets" class="btn-gradient text-white font-bold py-4 px-10 rounded-xl shadow-xl" data-i18n="btn-explore">Explore Assets</a>
+                <a href="https://dsc.gg/bjr" target="_blank" class="border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-slate-900 dark:text-white font-bold py-4 px-10 rounded-xl transition backdrop-blur-sm" data-i18n="btn-community">Join Community</a>
             </div>
         </div>
     </section>
@@ -208,39 +172,11 @@
     <section id="assets" class="py-24 relative bg-slate-500/5">
         <div class="max-w-7xl mx-auto px-4">
             <div class="text-center mb-16" data-aos="fade-down">
-                <h2 class="text-4xl font-bold text-slate-900 dark:text-white mb-4">Available Assets</h2>
+                <h2 class="text-4xl font-bold text-slate-900 dark:text-white mb-4" data-i18n="assets-title">Available Assets</h2>
                 <div class="h-1 w-20 bg-accent mx-auto rounded-full"></div>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <script>
-                    const assets = [
-                        { name: "BJDR", version: "2.0.0", desc: "Advanced global announcement.", icon: "fa-bullhorn" },
-                        { name: "BluredMenu", version: "1.0.0", desc: "Roblox menu with blur effects.", icon: "fa-window-restore" },
-                        { name: "ChatToDiscord", version: "1.0.0", desc: "Relay game chat to your Discord server.", icon: "fa-comments" },
-                        { name: "Loading Screen", version: "1.0.0", desc: "Smooth introduction for players.", icon: "fa-spinner" },
-                        { name: "Realistic Head-Camera", version: "1.0.0", desc: "Immersive avatar experience.", icon: "fa-video" },
-                        { name: "Topbar Donation", version: "1.0.0", desc: "Easy donation buttons for your game.", icon: "fa-circle-dollar-to-slot" },
-                        { name: "VisualFPS", version: "1.0.0", desc: "Clean HUD to display performance stats.", icon: "fa-gauge-high" },
-                        { name: "Whitelist System", version: "1.0.0", desc: "Secure access control for your game.", icon: "fa-shield-halved" }
-                    ];
-
-                    document.write(assets.map(asset => `
-                        <div class="asset-card bg-cardLight dark:bg-cardDark border border-black/5 dark:border-white/5 rounded-2xl p-6 card-violet-glow group shadow-sm dark:shadow-none" data-aos="fade-up">
-                            <div class="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center text-accent mb-4 group-hover:bg-accent group-hover:text-white transition-all duration-500 group-hover:rotate-[360deg]">
-                                <i class="fa-solid ${asset.icon} text-lg"></i>
-                            </div>
-                            <h3 class="text-lg font-bold text-slate-900 dark:text-white">${asset.name}</h3>
-                            <p class="text-[10px] font-mono text-accent/60 mb-2 uppercase tracking-widest">${asset.version}</p>
-                            <p class="text-slate-500 dark:text-slate-500 text-xs mb-6 leading-relaxed">${asset.desc}</p>
-                            <a href="https://github.com/bonjourdev/website/raw/refs/heads/main/assets/${encodeURIComponent(asset.name)}.rbxm" 
-                               class="w-full py-2.5 bg-black/5 dark:bg-white/5 hover:bg-accent hover:text-white text-slate-600 dark:text-slate-300 text-xs font-bold rounded-lg transition-all text-center block overflow-hidden relative">
-                               <span class="relative z-10"><i class="fa-solid fa-download mr-2"></i> Download</span>
-                            </a>
-                        </div>
-                    `).join(''));
-                </script>
-            </div>
+            <div id="assets-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                </div>
         </div>
     </section>
 
@@ -273,22 +209,22 @@
                 </div>
                 
                 <div class="order-1 lg:order-2" data-aos="fade-left">
-                    <h2 class="text-4xl font-black text-slate-900 dark:text-white mb-6 leading-tight">Everything is <br><span class="text-gradient">Open Source.</span></h2>
-                    <p class="text-slate-500 dark:text-slate-400 mb-8 text-lg">
+                    <h2 class="text-4xl font-black text-slate-900 dark:text-white mb-6 leading-tight" data-i18n="about-title">Everything is <br><span class="text-gradient">Open Source.</span></h2>
+                    <p class="text-slate-500 dark:text-slate-400 mb-8 text-lg" data-i18n="about-desc">
                         Bonjour. is not just a repository, it's a commitment to quality. No robux needed, no gatekeeping. Just tools to help you build the next front-page game.
                     </p>
                     <div class="space-y-4">
                         <div class="flex items-center gap-4 text-slate-900 dark:text-white font-semibold group cursor-default">
                             <div class="w-6 h-6 rounded bg-accent/20 flex items-center justify-center text-accent group-hover:bg-accent group-hover:text-white group-hover:scale-110 transition-all"><i class="fa-solid fa-check text-[10px]"></i></div>
-                            Direct Downloads
+                            <span data-i18n="f1">Direct Downloads</span>
                         </div>
                         <div class="flex items-center gap-4 text-slate-900 dark:text-white font-semibold group cursor-default">
                             <div class="w-6 h-6 rounded bg-accent/20 flex items-center justify-center text-accent group-hover:bg-accent group-hover:text-white group-hover:scale-110 transition-all"><i class="fa-solid fa-check text-[10px]"></i></div>
-                            No Viruses / Clean Code
+                            <span data-i18n="f2">No Viruses / Clean Code</span>
                         </div>
                         <div class="flex items-center gap-4 text-slate-900 dark:text-white font-semibold group cursor-default">
                             <div class="w-6 h-6 rounded bg-accent/20 flex items-center justify-center text-accent group-hover:bg-accent group-hover:text-white group-hover:scale-110 transition-all"><i class="fa-solid fa-check text-[10px]"></i></div>
-                            Optimized for High Latency
+                            <span data-i18n="f3">Optimized for High Latency</span>
                         </div>
                     </div>
                 </div>
@@ -303,38 +239,137 @@
                 <p class="text-slate-500 dark:text-slate-600 text-[10px] mt-1 font-mono uppercase tracking-widest">©2025 Bonjour. All rights reserved</p>
             </div>
             <div class="flex items-center space-x-6">
-                <a href="https://github.com/bonjourdev" target="_blank" class="text-slate-400 hover:text-accent transition text-xl hover:scale-125 hover:rotate-12"><i class="fa-brands fa-github"></i></a>
-                <a href="https://www.youtube.com/@offbonjour" target="_blank" class="text-slate-400 hover:text-[#FF0000] transition text-xl hover:scale-125"><i class="fa-brands fa-youtube"></i></a>
-                <a href="https://dsc.gg/bjr" target="_blank" class="text-slate-400 hover:text-accent transition text-xl hover:scale-125 hover:-rotate-12"><i class="fa-brands fa-discord"></i></a>
+                <a href="https://github.com/bonjourdev" target="_blank" class="text-slate-400 hover:text-accent transition text-xl"><i class="fa-brands fa-github"></i></a>
+                <a href="https://www.youtube.com/@offbonjour" target="_blank" class="text-slate-400 hover:text-accent transition text-xl"><i class="fa-brands fa-youtube"></i></a>
+                <a href="https://dsc.gg/bjr" target="_blank" class="text-slate-400 hover:text-accent transition text-xl"><i class="fa-brands fa-discord"></i></a>
             </div>
         </div>
     </footer>
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        window.addEventListener('DOMContentLoaded', () => {
-            const loader = document.getElementById('loader');
-            const loaderContent = document.getElementById('loader-content');
-            const loaderBar = document.getElementById('loader-bar');
-            const text = "Bonjour.";
+        const translations = {
+            en: {
+                "nav-home": "Home", "nav-assets": "Assets", "nav-about": "About",
+                "badge": "Roblox Open Source Project", "hero-title": "Resources.",
+                "hero-desc": "Empowering the Roblox community with enriched scripts for free. High performance, clean code, and zero cost.",
+                "btn-explore": "Explore Assets", "btn-community": "Join Community",
+                "assets-title": "Available Assets", "about-title": "Everything is Open Source.",
+                "about-desc": "Bonjour. is not just a repository, it's a commitment to quality. No robux needed, no gatekeeping.",
+                "f1": "Direct Downloads", "f2": "No Viruses / Clean Code", "f3": "Optimized for High Latency",
+                "download": "Download",
+                assets: [
+                    { name: "BJDR", desc: "Advanced global announcement." },
+                    { name: "BluredMenu", desc: "Roblox menu with blur effects." },
+                    { name: "ChatToDiscord", desc: "Relay game chat to Discord." },
+                    { name: "Loading Screen", desc: "Smooth introduction for players." },
+                    { name: "Realistic Head-Camera", desc: "Immersive avatar experience." },
+                    { name: "Topbar Donation", desc: "Easy donation buttons." },
+                    { name: "VisualFPS", desc: "Clean performance HUD." },
+                    { name: "Whitelist System", desc: "Secure access control." }
+                ]
+            },
+            fr: {
+                "nav-home": "Accueil", "nav-assets": "Assets", "nav-about": "À propos",
+                "badge": "Projet Open Source Roblox", "hero-title": "Ressources.",
+                "hero-desc": "Propulser la communauté Roblox avec des scripts enrichis gratuitement. Performance, code propre et gratuit.",
+                "btn-explore": "Explorer les Assets", "btn-community": "Rejoindre la Communauté",
+                "assets-title": "Assets Disponibles", "about-title": "Tout est Open Source.",
+                "about-desc": "Bonjour. n'est pas qu'un répertoire, c'est un engagement envers la qualité. Pas besoin de Robux.",
+                "f1": "Téléchargements Directs", "f2": "Sans Virus / Code Propre", "f3": "Optimisé pour la latence",
+                "download": "Télécharger",
+                assets: [
+                    { name: "BJDR", desc: "Annonces globales avancées." },
+                    { name: "BluredMenu", desc: "Menu Roblox avec effets de flou." },
+                    { name: "ChatToDiscord", desc: "Relais chat vers Discord." },
+                    { name: "Loading Screen", desc: "Introduction fluide pour les joueurs." },
+                    { name: "Realistic Head-Camera", desc: "Expérience immersive d'avatar." },
+                    { name: "Topbar Donation", desc: "Boutons de donation faciles." },
+                    { name: "VisualFPS", desc: "HUD de performance épuré." },
+                    { name: "Whitelist System", desc: "Contrôle d'accès sécurisé." }
+                ]
+            },
+            es: {
+                "nav-home": "Inicio", "nav-assets": "Recursos", "nav-about": "Sobre nosotros",
+                "badge": "Proyecto de código abierto Roblox", "hero-title": "Recursos.",
+                "hero-desc": "Empoderando a la comunidad de Roblox con scripts mejorados gratis. Alto rendimiento y código limpio.",
+                "btn-explore": "Explorar Recursos", "btn-community": "Unirse a la Comunidad",
+                "assets-title": "Recursos Disponibles", "about-title": "Todo es Código Abierto.",
+                "about-desc": "Bonjour. no es solo un repositorio, es un compromiso con la calidad. Sin robux ni barreras.",
+                "f1": "Descargas Directas", "f2": "Sin Virus / Código Limpio", "f3": "Optimizado para latencia",
+                "download": "Descargar",
+                assets: [
+                    { name: "BJDR", desc: "Anuncios globales avanzados." },
+                    { name: "BluredMenu", desc: "Menú Roblox con efectos blur." },
+                    { name: "ChatToDiscord", desc: "Relais de chat a Discord." },
+                    { name: "Loading Screen", desc: "Introducción fluida para jugadores." },
+                    { name: "Realistic Head-Camera", desc: "Experiencia inmersiva." },
+                    { name: "Topbar Donation", desc: "Botones de donación fáciles." },
+                    { name: "VisualFPS", desc: "HUD de rendimiento limpio." },
+                    { name: "Whitelist System", desc: "Control de acceso seguro." }
+                ]
+            },
+            ru: {
+                "nav-home": "Главная", "nav-assets": "Ресурсы", "nav-about": "О нас",
+                "badge": "Open Source проект Roblox", "hero-title": "Ресурсы.",
+                "hero-desc": "Развитие сообщества Roblox с помощью бесплатных скриптов. Высокая производительность и чистый код.",
+                "btn-explore": "Исследовать ресурсы", "btn-community": "Присоединиться",
+                "assets-title": "Доступные ресурсы", "about-title": "Всё в открытом доступе.",
+                "about-desc": "Bonjour. — это не просто репозиторий, это стремление к качеству. Без робуксов.",
+                "f1": "Прямая загрузка", "f2": "Без вирусов / Чистый код", "f3": "Оптимизировано для пинга",
+                "download": "Скачать",
+                assets: [
+                    { name: "BJDR", desc: "Продвинутые объявления." },
+                    { name: "BluredMenu", desc: "Меню Roblox с эффектом размытия." },
+                    { name: "ChatToDiscord", desc: "Ретрансляция чата в Discord." },
+                    { name: "Loading Screen", desc: "Плавная загрузка для игроков." },
+                    { name: "Realistic Head-Camera", desc: "Иммерсивный опыт." },
+                    { name: "Topbar Donation", desc: "Простые кнопки пожертвований." },
+                    { name: "VisualFPS", desc: "Чистый HUD производительности." },
+                    { name: "Whitelist System", desc: "Защищенный контроль доступа." }
+                ]
+            }
+        };
+
+        const flags = { en: "🇺🇸", fr: "🇫🇷", es: "🇪🇸", ru: "🇷🇺" };
+        const langNames = { en: "English", fr: "Français", es: "Español", ru: "Русский" };
+
+        function setLanguage(lang) {
+            document.getElementById('current-flag').textContent = flags[lang];
+            document.getElementById('current-lang').textContent = langNames[lang];
             
-            text.split('').forEach((char, i) => {
-                const span = document.createElement('span');
-                span.textContent = char;
-                span.className = 'letter';
-                if (char === '.') span.classList.add('text-accent');
-                loaderContent.appendChild(span);
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                el.innerHTML = translations[lang][key];
             });
 
-            const letters = document.querySelectorAll('.letter');
+            const grid = document.getElementById('assets-grid');
+            const icons = ["fa-bullhorn", "fa-window-restore", "fa-comments", "fa-spinner", "fa-video", "fa-circle-dollar-to-slot", "fa-gauge-high", "fa-shield-halved"];
             
+            grid.innerHTML = translations[lang].assets.map((asset, i) => `
+                <div class="asset-card bg-cardLight dark:bg-cardDark border border-black/5 dark:border-white/5 rounded-2xl p-6 card-violet-glow group" data-aos="fade-up">
+                    <div class="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center text-accent mb-4 group-hover:bg-accent group-hover:text-white transition-all duration-500 group-hover:rotate-[360deg]">
+                        <i class="fa-solid ${icons[i]} text-lg"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white">${asset.name}</h3>
+                    <p class="text-[10px] font-mono text-accent/60 mb-2 uppercase tracking-widest">1.0.0</p>
+                    <p class="text-slate-500 text-xs mb-6 leading-relaxed h-8">${asset.desc}</p>
+                    <a href="https://github.com/bonjourdev/website/raw/refs/heads/main/assets/${encodeURIComponent(asset.name)}.rbxm" 
+                       class="w-full py-2.5 bg-black/5 dark:bg-white/5 hover:bg-accent hover:text-white text-slate-600 dark:text-slate-300 text-xs font-bold rounded-lg transition-all text-center block">
+                       <i class="fa-solid fa-download mr-2"></i> ${translations[lang].download}
+                    </a>
+                </div>
+            `).join('');
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const loader = document.getElementById('loader');
+            const loaderText = document.getElementById('loader-text');
+            setLanguage('en'); 
+
             setTimeout(() => {
-                loaderBar.style.width = '100%';
-                letters.forEach((letter, i) => {
-                    setTimeout(() => {
-                        letter.classList.add('active');
-                    }, i * 150);
-                });
+                loaderText.classList.add('reveal-anim');
+                loaderText.classList.replace('opacity-0', 'opacity-100');
             }, 500);
 
             setTimeout(() => {
@@ -342,71 +377,48 @@
                 setTimeout(() => {
                     loader.style.display = 'none';
                     document.body.classList.remove('loading');
-                    AOS.init({ duration: 1000, easing: 'ease-out-quint', once: true });
+                    AOS.init({ duration: 800, easing: 'ease-out-back', once: true });
                 }, 1000);
-            }, 4000);
+            }, 4500);
         });
 
         const cursorGlow = document.getElementById('cursor-glow');
         const blobs = [document.getElementById('blob-1'), document.getElementById('blob-2')];
-        const cards = document.querySelectorAll('.asset-card');
+        const particleContainer = document.getElementById('particles-container');
+        const particles = [];
+
+        for (let i = 0; i < 40; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle animate-twinkle text-slate-400 dark:text-white';
+            const size = Math.random() * 3 + 1;
+            p.style.width = `${size}px`; p.style.height = `${size}px`;
+            let x = Math.random() * window.innerWidth, y = Math.random() * window.innerHeight;
+            p.style.left = `${x}px`; p.style.top = `${y}px`;
+            p.style.animationDelay = `${Math.random() * 5}s`;
+            particleContainer.appendChild(p);
+            particles.push({ el: p, x, y, velX: (Math.random() - 0.5) * 0.5, velY: (Math.random() - 0.5) * 0.5 });
+        }
+
+        function updateParticles() {
+            particles.forEach(p => {
+                p.x += p.velX; p.y += p.velY;
+                if (p.x < 0) p.x = window.innerWidth; if (p.x > window.innerWidth) p.x = 0;
+                if (p.y < 0) p.y = window.innerHeight; if (p.y > window.innerHeight) p.y = 0;
+                p.el.style.left = `${p.x}px`; p.el.style.top = `${p.y}px`;
+            });
+            requestAnimationFrame(updateParticles);
+        }
+        updateParticles();
 
         document.addEventListener('mousemove', (e) => {
             const { clientX, clientY } = e;
             cursorGlow.style.left = `${clientX}px`;
             cursorGlow.style.top = `${clientY}px`;
-
             blobs.forEach((blob, index) => {
-                const speed = (index + 1) * 20;
-                const x = (window.innerWidth / 2 - clientX) / speed;
-                const y = (window.innerHeight / 2 - clientY) / speed;
-                blob.style.transform = `translate(${x}px, ${y}px) rotate(${clientX / 50}deg)`;
-            });
-
-            cards.forEach(card => {
-                const rect = card.getBoundingClientRect();
-                const x = clientX - rect.left;
-                const y = clientY - rect.top;
-                if (x > 0 && x < rect.width && y > 0 && y < rect.height) {
-                    const dx = x - rect.width / 2;
-                    const dy = y - rect.height / 2;
-                    card.style.transform = `perspective(1000px) rotateX(${-dy / 8}deg) rotateY(${dx / 8}deg) scale3d(1.05, 1.05, 1.05)`;
-                } else {
-                    card.style.transform = '';
-                }
+                const speed = (index + 1) * 30;
+                blob.style.transform = `translate(${(window.innerWidth / 2 - clientX) / speed}px, ${(window.innerHeight / 2 - clientY) / speed}px)`;
             });
         });
-
-        const particleContainer = document.getElementById('particles-container');
-        const particles = [];
-        for (let i = 0; i < 50; i++) {
-            const p = document.createElement('div');
-            p.className = 'particle animate-twinkle text-slate-400 dark:text-white';
-            const size = Math.random() * 4 + 1;
-            p.style.width = `${size}px`;
-            p.style.height = `${size}px`;
-            let x = Math.random() * window.innerWidth;
-            let y = Math.random() * window.innerHeight;
-            p.style.left = `${x}px`;
-            p.style.top = `${y}px`;
-            p.style.animationDelay = `${Math.random() * 5}s`;
-            particleContainer.appendChild(p);
-            particles.push({ el: p, x, y, vx: (Math.random() - 0.5) * 0.8, vy: (Math.random() - 0.5) * 0.8 });
-        }
-
-        function animateParticles() {
-            particles.forEach(p => {
-                p.x += p.vx; p.y += p.vy;
-                if (p.x < 0) p.x = window.innerWidth;
-                if (p.x > window.innerWidth) p.x = 0;
-                if (p.y < 0) p.y = window.innerHeight;
-                if (p.y > window.innerHeight) p.y = 0;
-                p.el.style.left = `${p.x}px`;
-                p.el.style.top = `${p.y}px`;
-            });
-            requestAnimationFrame(animateParticles);
-        }
-        animateParticles();
     </script>
 </body>
 </html>
