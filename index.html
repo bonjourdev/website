@@ -22,12 +22,16 @@
                     animation: {
                         'pulse-slow': 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                         'float': 'float 3s ease-in-out infinite',
-                        'glitch': 'glitch 0.3s ease-in-out infinite',
+                        'twinkle': 'twinkle 3s ease-in-out infinite',
                     },
                     keyframes: {
                         float: {
                             '0%, 100%': { transform: 'translateY(0)' },
                             '50%': { transform: 'translateY(-15px)' },
+                        },
+                        twinkle: {
+                            '0%, 100%': { opacity: 0.1, transform: 'scale(1)' },
+                            '50%': { opacity: 0.6, transform: 'scale(1.5)' },
                         }
                     }
                 }
@@ -97,13 +101,7 @@
             background: white;
             border-radius: 2px;
             pointer-events: none;
-            opacity: 0.1;
             z-index: -1;
-        }
-
-        .title-hover:hover {
-            text-shadow: 2px 0 #00A2FF, -2px 0 #A855F7;
-            animation: glitch 0.2s skew infinite;
         }
     </style>
 </head>
@@ -145,7 +143,7 @@
                     Roblox Open Source Project
                 </span>
             </div>
-            <h1 class="text-6xl md:text-8xl font-black text-white mb-6 tracking-tight title-hover transition-all duration-300">
+            <h1 class="text-6xl md:text-8xl font-black text-white mb-6 tracking-tight">
                 Bonjour<br>
                 <span class="text-gradient">Resources.</span>
             </h1>
@@ -261,8 +259,9 @@
                 <p class="text-slate-600 text-[10px] mt-1 font-mono uppercase tracking-widest">©2025 Bonjour. All rights reserved</p>
             </div>
             <div class="flex items-center space-x-6">
-                <a href="https://github.com/bonjourdev" class="text-slate-400 hover:text-accent transition text-xl hover:scale-125 hover:rotate-12"><i class="fa-brands fa-github"></i></a>
-                <a href="https://dsc.gg/bjr" class="text-slate-400 hover:text-accent transition text-xl hover:scale-125 hover:-rotate-12"><i class="fa-brands fa-discord"></i></a>
+                <a href="https://github.com/bonjourdev" target="_blank" class="text-slate-400 hover:text-accent transition text-xl hover:scale-125 hover:rotate-12"><i class="fa-brands fa-github"></i></a>
+                <a href="https://www.youtube.com/@offbonjour" target="_blank" class="text-slate-400 hover:text-accent transition text-xl hover:scale-125"><i class="fa-brands fa-youtube"></i></a>
+                <a href="https://dsc.gg/bjr" target="_blank" class="text-slate-400 hover:text-accent transition text-xl hover:scale-125 hover:-rotate-12"><i class="fa-brands fa-discord"></i></a>
             </div>
         </div>
     </footer>
@@ -274,22 +273,49 @@
         const cursorGlow = document.getElementById('cursor-glow');
         const blobs = [document.getElementById('blob-1'), document.getElementById('blob-2')];
         const cards = document.querySelectorAll('.asset-card');
-
+        
         const particleContainer = document.getElementById('particles-container');
         const particles = [];
-        for (let i = 0; i < 30; i++) {
+        for (let i = 0; i < 40; i++) {
             const p = document.createElement('div');
-            p.className = 'particle';
-            const size = Math.random() * 4 + 2;
+            p.className = 'particle animate-twinkle';
+            const size = Math.random() * 3 + 1;
             p.style.width = `${size}px`;
             p.style.height = `${size}px`;
+            
             let x = Math.random() * window.innerWidth;
             let y = Math.random() * window.innerHeight;
+            
             p.style.left = `${x}px`;
             p.style.top = `${y}px`;
+            p.style.animationDelay = `${Math.random() * 5}s`;
+            
             particleContainer.appendChild(p);
-            particles.push({ el: p, x, y, ox: x, oy: y });
+            particles.push({ 
+                el: p, 
+                x: x, 
+                y: y, 
+                velX: (Math.random() - 0.5) * 0.5, 
+                velY: (Math.random() - 0.5) * 0.5 
+            });
         }
+
+        function updateParticles() {
+            particles.forEach(p => {
+                p.x += p.velX;
+                p.y += p.velY;
+
+                if (p.x < 0) p.x = window.innerWidth;
+                if (p.x > window.innerWidth) p.x = 0;
+                if (p.y < 0) p.y = window.innerHeight;
+                if (p.y > window.innerHeight) p.y = 0;
+
+                p.el.style.left = `${p.x}px`;
+                p.el.style.top = `${p.y}px`;
+            });
+            requestAnimationFrame(updateParticles);
+        }
+        updateParticles();
 
         document.addEventListener('mousemove', (e) => {
             const { clientX, clientY } = e;
@@ -314,24 +340,6 @@
                     card.style.transform = `perspective(1000px) rotateX(${-dy / 10}deg) rotateY(${dx / 10}deg) translateY(-8px)`;
                 } else {
                     card.style.transform = '';
-                }
-            });
-
-            particles.forEach(p => {
-                const dx = clientX - p.x;
-                const dy = clientY - p.y;
-                const dist = Math.sqrt(dx*dx + dy*dy);
-                if (dist < 150) {
-                    const angle = Math.atan2(dy, dx);
-                    const tx = p.x - Math.cos(angle) * 20;
-                    const ty = p.y - Math.sin(angle) * 20;
-                    p.el.style.left = `${tx}px`;
-                    p.el.style.top = `${ty}px`;
-                    p.el.style.opacity = "0.4";
-                } else {
-                    p.el.style.left = `${p.ox}px`;
-                    p.el.style.top = `${p.oy}px`;
-                    p.el.style.opacity = "0.1";
                 }
             });
         });
