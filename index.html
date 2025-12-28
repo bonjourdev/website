@@ -15,8 +15,8 @@
             theme: {
                 extend: {
                     colors: {
-                        roblox: '#00BFFF',
-                        accent: '#00bfff',
+                        roblox: '#00BFFF', /* Bleu de base */
+                        accent: '#00E5FF', /* Nouveau Cyan */
                         dark: '#0B0F1A',
                         light: '#F8FAFC',
                         cardDark: '#161B2E',
@@ -34,7 +34,7 @@
     <style>
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #00bfff; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #00E5FF; border-radius: 4px; }
         
         .glass-nav { 
             background: rgba(248, 250, 252, 0.8); 
@@ -54,7 +54,7 @@
         }
 
         .text-gradient {
-            background: linear-gradient(135deg, #00BFFF 0%, #00bfff 100%);
+            background: linear-gradient(135deg, #00BFFF 0%, #00E5FF 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-size: 200% 200%;
@@ -68,7 +68,7 @@
         }
 
         .btn-gradient {
-            background: linear-gradient(135deg, #00BFFF 0%, #00bfff 100%);
+            background: linear-gradient(135deg, #00BFFF 0%, #00E5FF 100%);
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
@@ -78,16 +78,16 @@
             will-change: transform;
         }
         
-        .card-violet-glow:hover {
-            box-shadow: 0 25px 50px -12px rgba(168, 85, 247, 0.25);
-            border-color: rgba(168, 85, 247, 0.4);
+        .card-blue-glow:hover {
+            box-shadow: 0 25px 50px -12px rgba(0, 229, 255, 0.25);
+            border-color: rgba(0, 229, 255, 0.4);
         }
 
         .bg-blob { filter: blur(80px); opacity: 0.15; z-index: -1; }
 
         #cursor-glow {
             width: 800px; height: 800px;
-            background: radial-gradient(circle, rgba(168, 85, 247, 0.08) 0%, rgba(0,0,0,0) 70%);
+            background: radial-gradient(circle, rgba(0, 229, 255, 0.08) 0%, rgba(0,0,0,0) 70%);
             position: fixed; pointer-events: none; z-index: 0;
             transform: translate(-50%, -50%); border-radius: 50%;
         }
@@ -105,9 +105,7 @@
 <body class="loading bg-light dark:bg-dark text-slate-600 dark:text-slate-300 font-sans selection:bg-accent selection:text-white overflow-x-hidden transition-colors duration-500">
 
     <div id="loader" class="fixed inset-0 z-[100] flex items-center justify-center bg-white dark:bg-[#000000] transition-opacity duration-1000">
-        <h1 id="loader-text" class="text-6xl md:text-8xl font-black opacity-0 text-slate-900 dark:text-white">
-            Bonjour<span class="text-accent">.</span>
-        </h1>
+        <img id="loader-text" src="https://i.imgur.com/xdSIeZo.png" alt="Bonjour Logo" class="h-20 md:h-32 w-auto opacity-0 object-contain">
     </div>
 
     <div id="cursor-glow"></div>
@@ -117,9 +115,9 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center">
-                    <span class="text-2xl font-bold text-slate-900 dark:text-white tracking-tighter">
-                        Bonjour<span class="text-accent">.</span>
-                    </span>
+                    <a href="#">
+                        <img src="https://i.imgur.com/xdSIeZo.png" alt="Bonjour Logo" class="h-8 md:h-10 w-auto object-contain hover:opacity-80 transition-opacity">
+                    </a>
                 </div>
                 
                 <div class="hidden md:flex items-center space-x-8">
@@ -245,7 +243,7 @@
     <footer class="py-12 border-t border-black/5 dark:border-white/5 bg-slate-100 dark:bg-[#080B14]">
         <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6">
             <div>
-                <span class="text-xl font-bold text-slate-900 dark:text-white tracking-tighter">Bonjour<span class="text-accent">.</span></span>
+                <img src="https://i.imgur.com/xdSIeZo.png" alt="Bonjour Logo" class="h-8 w-auto object-contain mb-2 hover:opacity-80 transition-opacity">
                 <p class="text-slate-500 dark:text-slate-600 text-[10px] mt-1 font-mono uppercase tracking-widest">©2025 Bonjour. All rights reserved</p>
             </div>
             <div class="flex items-center space-x-6">
@@ -259,7 +257,7 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         //-----------------------------------------------------TRANSLATIONS-----------------------------------------------------\\
-const translations = {
+        const translations = {
             en: {
                 "nav-home": "Home", "nav-assets": "Assets", "nav-about": "About",
                 "badge": "Roblox Open Source Project", "hero-title": "Resources.",
@@ -465,7 +463,7 @@ const translations = {
             const icons = ["fa-bullhorn", "fa-window-restore", "fa-comments", "fa-spinner", "fa-video", "fa-circle-dollar-to-slot", "fa-gauge-high", "fa-shield-halved"];
             
             grid.innerHTML = translations[lang].assets.map((asset, i) => `
-                <div class="asset-card bg-cardLight dark:bg-cardDark border border-black/5 dark:border-white/5 rounded-2xl p-6 card-violet-glow group shadow-sm" data-aos="fade-up">
+                <div class="asset-card bg-cardLight dark:bg-cardDark border border-black/5 dark:border-white/5 rounded-2xl p-6 card-blue-glow group shadow-sm" data-aos="fade-up">
                     <div class="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center text-accent mb-4 group-hover:bg-accent group-hover:text-white transition-all duration-500 group-hover:rotate-[360deg]">
                         <i class="fa-solid ${icons[i]} text-lg"></i>
                     </div>
