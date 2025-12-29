@@ -1,4 +1,4 @@
-# Custom Asset & Code License (Bonjour. Resources)
+# Custom Asset & Code License (CACL)
 
 Copyright (c) 2025 Bonjour.
 
