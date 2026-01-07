@@ -1,19 +1,12 @@
-# 🔵 Bonjour. Resources
+# 🟦 Bonjour.
 
-Welcome to **Bonjour.**, a open-source repository dedicated to providing optimized, and enriched scripts for the Roblox community.
+Welcome to **Bonjour.**, a open-source project dedicated to providing optimized, and enriched scripts for the Roblox community.
 
-[![License](https://img.shields.io/badge/License-CACL-5865F2?style=for-the-badge&logo=github)](https://github.com/bonjourdev/website/blob/main/LICENSE.md)
+[![License](https://img.shields.io/badge/License-CAC-5865F2?style=for-the-badge&logo=github)](https://github.com/bonjourdev/website/blob/main/LICENSE.md)
 [![Stars](https://img.shields.io/github/stars/bonjourdev/website?color=00E5FF&style=for-the-badge)](https://github.com/bonjourdev/website/stargazers)
 [![Discord](https://img.shields.io/badge/Discord-Join%20Us-5865F2?style=for-the-badge&logo=discord)](https://dsc.gg/bjr)
 
 ---
-
-## ✨ Key Features
-
--  **High Performance:** Every script is written with optimization in mind to ensure zero lag.
--  **Clean Code:** Well-documented and easy-to-read Luau code.
--  **100% Free:** No Robux, no gatekeeping, no obfuscation.
--  **Safe & Secure:** Every asset is manually reviewed to ensure it's virus-free.
 
 ## 📦 Featured Assets
 
@@ -24,7 +17,7 @@ Welcome to **Bonjour.**, a open-source repository dedicated to providing optimiz
 | **ChatToDiscord** | `1.0.0` | `System` | Relay your in-game chat directly to your Discord server. |
 | **Whitelist System** | `1.0.0` | `System`, `Security` | Secure your game with a robust access control system. |
 
-## 🚀 Getting Started
+## 🫵 Getting Started
 
 1. **Browse:** Visit our [Official Website](https://bonjourdev.github.io/website/#home) or explore the `assets/` folder in this repo.
 2. **Download:** Download the `.rbxm` files of the scripts you need.
